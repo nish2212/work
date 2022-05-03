@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            div {
+                position: absolute; /* 全てのdivをtop/leftで絶対位置指定 */
+            }
+            #panel { /* 質問用パネルの大きさと位置の指定 */
+                margin-left: 100px;
+                margin-top: 50px;
+                width: 300px;
+                height: 100px;
+                background-color: lightgreen;
+            }
+            .button { /* パネル上のボタンに共通なスタイル指定 */
+                width: 50px;
+                height: 25px;
+                color: white;
+                background-color: blue;
+                border: 5px solid yellow;
+                text-align: center;
+                font-size: 24px;
+            }
+            .yes { /* Yesボタン固有の指定 */
+                top: 20px;
+                left: 70px;
+            }
+            .no { /* Noボタン固有の指定 */
+                top: 20px;
+                left: 200px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="panel">
+            <div class="button yes">Yes</div>
+            <div class="button no">No</div>
+        </div>
+    </body>
+</html>

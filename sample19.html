@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script>
+            function insertItem() {
+                var container = document.getElementById("container");
+                var item = document.createElement("li");
+                item.textContent = "hello";
+                container.appendChild(item);
+            }
+            function removeItem() {
+                var container = document.getElementById("container");
+                var item = container.lastChild;
+                if(item) {
+                    container.removeChild(item);
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <button onclick="insertItem()">insert</button>
+        <button onclick="removeItem()">delete</button>
+        <ol id="container"></ol>
+    </body>
+</html>

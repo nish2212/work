@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+        div { /* 全てのdivを絶対位置指定 */
+            position: absolute;
+            border-radius: 50px;
+        }
+        #face {
+            top: 20px;
+            left: 20px;
+            width: 600px;
+            height: 600px;
+            background-color: orange; 
+        }
+        .eyes {
+            width: 50px;
+            height: 80px;
+            background-color: black;
+        }
+        #left-eye {
+            left: 150px; top: 150px;
+        }
+        #right-eye {
+            left: 400px; top: 150px;
+        }
+        #nose-bottom{
+            left: 75px;
+            top: 330px;
+            width: 450px;
+            height: 100px;
+            background-color: red;
+        }
+        #nose-top{
+            left: 200px;
+            top: 280px;
+            width: 200px;
+            height: 200px;
+            background-color: blue;
+        }
+
+        </style>
+    </head>
+    <body>
+        <div id="face">
+            <div class="eyes" id="left-eye"></div>
+            <div class="eyes" id="right-eye"></div>
+            <div id="nose-bottom"></div>
+            <div id="nose-top"></div>
+        </div>
+    </body>
+</html>
