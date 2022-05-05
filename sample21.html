@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            #message-section {
+                text-align: center;
+            }
+            h1 {
+                font-size: 60px;
+            }
+            #message {
+                font-size: 35px;
+            }
+            #game-section {
+                height: 600px;
+                width: 100%;
+                text-align: center;
+                align: center;
+            }
+            table {
+                margin-top: 150px;
+                table-layout: fixed;
+                border: solid 5px;
+                width: 540px;
+                height: 540px;
+                margin: auto;
+            }
+            td {
+                border: solid 5px;
+                text-align: center;
+                font-size: 120px;
+                width: 180px;
+                height: 180px;
+            }
+            #button-section {
+                margin-top: 10px;
+                width: 100%;
+                height: 200px;
+                text-align: center;
+            }
+            #init_button {
+                width: 30%;
+                height: 30%;
+                font-size: 40px;
+                margin: auto;
+            }
+        </style>
+        <script>
+            var kind = ["○","✕",""];
+            var tgt
+
+            function change_cell(cell) {
+                var get_content = cell.outerText;
+                
+                for (i = 0 ; i < kind.length ; i++ ) {
+                    if (kind[i] == get_content) {
+                        if (i == kind.length-1) {
+                            tgt = 0;
+                        } else {
+                            tgt = i + 1;
+                        }
+                        return_content=kind[tgt];
+                    }
+                }
+                cell.textContent = return_content;
+
+                if (return_content != "") {
+                    chk_win(return_content);
+                }
+            }
+
+            function chk_win(me) {
+                var my_bag = ["0"];
+                var win_pattern = [ 
+                    [1,2,3],
+                    [1,4,7],
+                    [1,5,9],
+                    [2,5,8],
+                    [3,5,7],
+                    [3,6,9],
+                    [4,5,6],
+                    [7,8,9]
+                ];
+                for (i = 1 ; i < 10 ; i++) {
+                    var chk_id = "game-cell" + i;
+                    if (document.getElementById(chk_id).outerText == me) {
+                        my_bag.push(i);
+                        console.log(my_bag);
+                    }
+                }
+
+                for (i = 0 ; i < win_pattern.length ; i++) {
+                    var count = 0;
+                    for (j = 0 ; j < win_pattern[i].length ; j++) {
+                        var existing = my_bag.some((v) => v === win_pattern[i][j]);
+                        if(existing) {
+                            count++;
+                        }
+                    }
+                    if (count == 3) {
+                        document.getElementById("message").textContent = me + "の勝ちです！！！";
+                        return;
+                    }
+                }
+                document.getElementById("message").textContent = "";
+            }
+            function init_cell() {
+                for (i = 1 ; i < 10 ; i++) {
+                    var tgt_cell = "game-cell" + i;
+                    document.getElementById(tgt_cell).textContent = "";
+                }
+                document.getElementById("message").textContent = "";
+            }
+        </script>
+    </head>
+    <body>
+        <div id="message-section">
+            <h1>○✕ゲーム</h1>
+            <p id="message">○のターンです。</p>
+        </div>
+        <div id="game-section">
+            <table class="game-table">
+                <tr class="game-row" id="game-row1">
+                    <td class="game-cell" id="game-cell1" onclick="change_cell(this)"></td>
+                    <td class="game-cell" id="game-cell2" onclick="change_cell(this)"></td>
+                    <td class="game-cell" id="game-cell3" onclick="change_cell(this)"></td>
+                </tr>
+                <tr class="game-row" id="game-row2">
+                    <td class="game-cell" id="game-cell4" onclick="change_cell(this)"></td>
+                    <td class="game-cell" id="game-cell5" onclick="change_cell(this)"></td>
+                    <td class="game-cell" id="game-cell6" onclick="change_cell(this)"></td>
+                </tr>
+                <tr class="game-row" id="game-row3">
+                    <td class="game-cell" id="game-cell7" onclick="change_cell(this)"></td>
+                    <td class="game-cell" id="game-cell8" onclick="change_cell(this)"></td>
+                    <td class="game-cell" id="game-cell9" onclick="change_cell(this)"></td>
+                </tr>
+            </table>
+        </div>
+        <div id="button-section">
+            <button id="init_button" onclick="init_cell()">はじめから</button>
+        </div>
+    </body>
+</html>
