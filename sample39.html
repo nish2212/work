@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script>
+            var ctx;
+            var pitch = 2 * Math.PI /60
+            var now = Date();
+
+            function gobj(id) {
+                return document.getElementById(id);
+            }
+
+            function init() {
+                var canvas = gobj("canvas")
+                ctx = canvas.getContext("2d");
+
+                setInterval(tick,1000);
+            }
+
+            function tick() {
+                paintPlate();
+                displayDate();
+            }
+
+            function paintPlate() {
+                ctx.clearRect(0,0,300,300);
+
+                p = 60;
+                ctx.save();
+                ctx.translate(150,150);
+                ctx.strokeStyle = "black";
+                var r = Math.PI * 2 / p;
+                for (var i = 0;i < p;i++) {
+                    ctx.beginPath();
+                    ctx.lineWidth = (i%5) == 0 ? 3:1;
+                    ctx.moveTo(0,-120);
+                    ctx.lineTo(0,-140);
+                    ctx.stroke();
+                    ctx.rotate(r);
+                }
+                ctx.restore();
+            }
+
+            function displayDate() {
+                var now = new Date();
+
+                var s = now.getSeconds();
+                var m = now.getMinutes();
+                var h = (now.getHours() % 12 * 5) + (m / 12);
+                
+                //時間の表示
+                gobj("time").textContent = now.toTimeString();
+
+                //秒針の描画
+                drawNeedle(s,140,1,"red");
+
+                //分針の描画
+                drawNeedle(m,120,3,"blue");
+
+                //時針の描画
+                drawNeedle(h,80,4,"blue");
+            }
+
+            function drawNeedle(time,height,lineWidth,color) {
+                ctx.save();
+                ctx.strokeStyle = color;
+                ctx.translate(150,150);
+                ctx.beginPath();
+                ctx.lineWidth = lineWidth;
+                ctx.rotate(pitch * time);
+                ctx.moveTo(0,0);
+                ctx.lineTo(0,-1 * height);
+                ctx.stroke();
+                ctx.restore();
+            }
+        </script>
+    </head>
+    <body onload="init()";>
+        <canvas id="canvas" width="300" height="300"></canvas>
+        <p id="time"></p>
+    </body>
+</html>

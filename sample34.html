@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script>
+            var ctx, character, x = 100, y = 100;
+            var isOpen = true;
+            
+            function gobj(id) {
+                return document.getElementById(id);
+            }
+
+            function init() {
+                var canvas = gobj("canvas");
+                ctx = canvas.getContext("2d");
+                paintBack(); // 背景追加
+                window.addEventListener("keydown",keydown);
+                character = new Character(x,y);
+            }
+
+            function Character(x,y) {
+                this.timerId = 0;
+                this.fillStyle = "yellow";
+                this.moveLeft = function() {
+                    clearInterval(this.timerId);
+                    this.timerId = setInterval(switchFront,200,"left")
+                }
+                this.moveRight = function() {
+                    clearInterval(this.timerId);
+                    this.timerId = setInterval(switchFront,200,"right")
+                }
+                this.moveUp = function() {
+                    clearInterval(this.timerId);
+                    this.timerId = setInterval(switchFront,200,"up")
+                }
+                this.moveDown = function() {
+                    clearInterval(this.timerId);
+                    this.timerId = setInterval(switchFront,200,"down")
+                }
+                this.moveRight();
+            }
+
+            function keydown(e) {
+                if (e.keyCode == 37) {
+                    character.moveLeft();
+                } else if (e.keyCode == 39) {
+                    character.moveRight();
+                } else if (e.keyCode == 38) {
+                    character.moveUp();
+                } else if (e.keyCode == 40) {
+                    character.moveDown();
+                }
+            }
+
+            function paintBack() {
+                ctx.fillStyle = "black";                
+                ctx.fillRect(0,0,200,200);
+            }
+
+            function switchFront(direct) {
+                isOpen = !isOpen;
+                paintFront(x,y,direct);
+            }
+
+            function paintFront(x,y,direct) {
+                var d,x2,y2;
+                if (direct == "left") {
+                    d = -1;
+                    x2 = -20;
+                    y2 = 0;
+                } else if (direct == "right") {
+                    d = 0;
+                    x2 = 20;
+                    y2 =0;
+                } else if (direct == "up") {
+                    d = -1/2;
+                    x2 = 0;
+                    y2 = -20;
+                } else if (direct == "down") {
+                    d = -3/2;
+                    x2 = 0;
+                    y2 = 20;
+                }
+                
+                // 初期化
+                ctx.fillStyle = "black";
+                ctx.fillRect(0,0,200,200);
+                // 再配置
+                ctx.fillStyle = "yellow";
+                ctx.beginPath();
+                ctx.moveTo(x,y);
+                if(isOpen) {
+                    ctx.arc(x,y,20,d*Math.PI,(2+d)*Math.PI);
+                    ctx.fill();
+                    ctx.strokeStyle = "black";
+                    ctx.beginPath();
+                    ctx.moveTo(x,y);
+                    ctx.lineTo(x+x2,y+y2);
+                    ctx.stroke();
+                } else {
+                    ctx.arc(x,y,20,(-1/4+d)*Math.PI,(1/4+d)*Math.PI,true);
+                    ctx.fill();
+                }
+            }
+        </script>
+    </head>
+    <body onload="init()">
+        <canvas id="canvas" width="200" height="200"></canvas>
+    </body>
+</html>

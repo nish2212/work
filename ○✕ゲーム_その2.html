@@ -49,13 +49,20 @@
             var my_turn = "○";
             var in_battle = 1;
 
-            function change_cell(cell) {
-                
-                if (in_battle == 1) {
-                    cell.textContent = my_turn;
+            function change_cell(cell) {     
+                if (in_battle == 0) {
+                    return;
                 }
-                
+                if (cell.textContent != "") {
+                    return;
+                }
+                cell.textContent = my_turn;
+
                 chk_win(my_turn);
+
+                if (in_battle == 1) {
+                    chk_even();
+                }
 
                 if (in_battle == 1) {
                     switch (my_turn) {
@@ -86,7 +93,6 @@
                     var chk_id = "game-cell" + i;
                     if (document.getElementById(chk_id).outerText == me) {
                         my_bag.push(i);
-                        console.log(my_bag);
                     }
                 }
 
@@ -108,16 +114,30 @@
                 }
                 document.getElementById("message").style.color = "black";
             }
+
+            function chk_even() {
+                for (i = 1 ; i < 10 ; i++) {
+                    var tgt_cell = "game-cell" + i;
+                    if (document.getElementById(tgt_cell).outerText == "") {
+                        return;
+                    }
+                }
+                document.getElementById("message").textContent = "引き分けです。";
+                document.getElementById("message").style.color = "blue";
+                document.getElementById("init_button").textContent = "もういちど";
+                in_battle = 0;
+            }
+
             function init_cell() {
                 for (i = 1 ; i < 10 ; i++) {
                     var tgt_cell = "game-cell" + i;
                     document.getElementById(tgt_cell).textContent = "";
                 }
+                my_turn = "○";
+                in_battle = 1;
                 document.getElementById("message").textContent = my_turn + "のターンです。";
                 document.getElementById("message").style.color = "black";
                 document.getElementById("init_button").textContent = "はじめから";
-                my_turn = "○";
-                in_battle = 1;
             }
         </script>
     </head>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script>
+            var ctx;
+
+            function gobj(id) {
+                return document.getElementById(id);
+            }
+
+            function init() {
+                var canvas = gobj("canvas");
+                ctx = canvas.getContext("2d");
+                paint();
+            }
+
+            function paint() {
+                ctx.fillStyle = "black";                
+                ctx.fillRect(0,0,200,200);
+
+                ctx.fillStyle = "white";
+                ctx.beginPath();
+                ctx.moveTo(100,100);
+                ctx.arc(100,100,20,-1*Math.PI/4,Math.PI/4,true);
+                ctx.closePath();
+                ctx.fill();
+            }
+        </script>
+    </head>
+    <body onload="init()">
+        <canvas id="canvas" width="200" height="200"></canvas>
+    </body>
+</html>

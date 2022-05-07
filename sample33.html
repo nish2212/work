@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script>
+            var ctx;
+
+            function gobj(id) {
+                return document.getElementById(id);
+            }
+
+            function init() {
+                var mode = 0;
+                var canvas = gobj("canvas");
+                ctx = canvas.getContext("2d");
+                paintBack();
+                paintFrontInit();
+                timerId = setInterval(switchFront,500);
+            }
+
+            function paintBack() {
+                ctx.fillStyle = "black";                
+                ctx.fillRect(0,0,200,200);
+            }
+
+            function switchFront() {
+                switch (mode) {
+                    case 1:
+                        paintFront2();
+                        break;
+                    case 2:
+                        paintFront1();
+                        break;
+                }
+            }
+
+            function paintFrontInit() {
+                ctx.fillStyle = "yellow";
+                ctx.beginPath();
+                ctx.moveTo(100,100);
+                ctx.arc(100,100,20,-1*Math.PI/4,Math.PI/4,true);
+                ctx.closePath();
+                ctx.fill();
+                mode = 1;
+            }
+
+            function paintFront1() {
+                ctx.fillStyle = "black";
+                ctx.beginPath();
+                ctx.moveTo(100,100);
+                ctx.arc(100,100,25,-1*Math.PI/4,Math.PI/4,false);
+                ctx.closePath();
+                ctx.fill();
+                mode = 1;
+            }
+
+            function paintFront2() {
+                ctx.fillStyle = "yellow";
+                ctx.beginPath();
+                ctx.moveTo(100,100);
+                ctx.arc(100,100,20,0,2*Math.PI,true);
+                ctx.closePath();
+                ctx.fill();
+                
+                ctx.strokeStyle = "black";
+                ctx.beginPath();
+                ctx.moveTo(100,100);
+                ctx.lineTo(125,100);
+                ctx.stroke();
+                
+                mode = 2;
+            }
+        </script>
+    </head>
+    <body onload="init()">
+        <canvas id="canvas" width="200" height="200"></canvas>
+    </body>
+</html>
