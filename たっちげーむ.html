@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Touch</title>
+        <meta charset="utf-8" />
+        <style>
+            #main {
+                width: 600px;
+                height: 600px;
+                background-color: white;
+                position: absolute;
+                overflow: hidden;
+            }
+            #target {
+                top: 250px;
+                left: 325px;
+                width: 150px;
+                height: 150px;
+                position: absolute;
+                z-index: 100;
+            }
+            #bang {
+                width: 150px;
+                height: 150px;
+                position: absolute;
+                z-index: 101;
+            }
+            #startTitle {
+                text-align: center;
+                font-size: 45px;
+                font-family: "Meiryo UI";
+            }
+            #field {
+                margin-top: 250px;
+                margin-left: 20px;
+                margin-right: 20px;
+                font-family: "Meiryo UI";
+            }
+            legend,label {
+                font-size: 20px;
+            }
+            button {
+                margin: 10px auto;
+                font-size: 20px;
+            }
+            #gameEndMessage {
+                margin: 280px auto 0px auto;
+                font-size: 20px;
+            }
+        </style>
+        <script type="text/javascript">
+            "use strict";
+            var s, x, y, score = 0, speed = 3000;
+            var targets = [], target, main, timer;
+            var divStart;
+
+            function gobj(id) {
+                return document.getElementById(id);
+            }
+
+            function gameStart() {
+                // 選択したレベルから速さを設定
+                var l = document.getElementsByName("level");
+                
+                for (var i = 0;i<l.length;i++) {
+                    if(l.item(i).checked) {
+                        speed = l.item(i).value;
+                    }
+                }
+
+                // スタート画面の削除
+                s = gobj("start");
+                s.remove();
+
+                main = gobj("main");
+                target = gobj("target");
+
+                // ゲームスタート
+                timer = setInterval(createTarget,speed);
+                setTimeout(gameEnd,30000);
+            }
+
+            function gameEnd() {
+                clearInterval(timer);
+
+                var e = document.createElement("div");
+                e.style.position = "absolute";
+                e.style.left = "100px";
+                e.style.top = "50px";
+                e.style.width = "600px";
+                e.style.height = "600px";
+                e.style.backgroundColor = "green";
+                e.style.textAlign = "center";
+                e.style.zIndex = 102; 
+                e.id = "gameEndBox";
+                main.appendChild(e);
+
+                var e2 = document.createElement("p");
+                e2.textContent = "とくてんは " + score + "てん です。";
+                e2.id = "gameEndMessage";
+                gobj("gameEndBox").appendChild(e2);
+
+                var e3 = document.createElement("button");
+                e3.textContent = "もういちど";
+                e3.id = "init_button";
+                e3.setAttribute("onclick","reloadPage()");
+                gobj("gameEndBox").appendChild(e3);
+            }
+
+            function reloadPage() {
+                location.reload();
+            }
+
+            function createTarget() {
+                var t = document.createElement("img");
+                t.style.position = "absolute";
+                t.style.width = "150px";
+                t.style.height = "150px";
+                var mainX = parseInt(main.style.width) - parseInt(t.style.width);
+                var mainY = parseInt(main.style.height) - parseInt(t.style.height);
+                x = Math.floor(Math.random() * mainX);
+                y = Math.floor(Math.random() * mainY);
+                t.style.top = y + "px";
+                t.style.left= x + "px";
+                t.src = "ship2.jpg";
+                t.style.zIndex = 100;
+                t.setAttribute("onclick","isHit(this)");
+                main.appendChild(t);
+            }
+
+            function isHit(p) {
+                var b = document.createElement("img");
+                b.style.position = "absolute";
+                b.style.width = "150px";
+                b.style.height = "150px";
+                b.style.top = p.style.top;
+                b.style.left = p.style.left;
+                b.style.zIndex = 101;
+                b.src = "bang.png"; 
+                main.appendChild(b);
+
+                score += 10;
+                gobj("score").innerHTML = score.toString();
+
+                setTimeout(removeTargets,400,p,b);
+                //clearTarget(p);
+                //clearTarget(b);
+            }
+
+            function removeTargets(p,b) {
+                p.remove();
+                b.remove();
+            }
+
+            // タッチ操作での拡大縮小禁止
+            function no_scaling() {
+                document.addEventListener("touchmove",mobile_no_scroll, { passive: false });
+            }
+
+            // タッチ操作での拡大縮小禁止解除
+            function return_scaling() {
+                document.removeEventListener("touchmove", mobile_no_scroll, { passive: false });
+            }
+
+            // 拡大縮小禁止
+            function mobile_no_scroll(event) {
+                // 2本指での操作の場合
+                if (event.touches.length >=2) {
+                    // デフォルトの動作をさせない
+                    event.preventDefault();
+                }
+            }
+        </script>
+    </head>
+    <body onload="no_scaling()">
+        <h1>Score:<span id="score">0</span></h1>
+        <div id="main" style="width: 800px;height: 800px">
+            <div id="start" style="position:absolute;width:400px;height:600px;left:200px;top:50px;background-color:green;text-align:center;">
+                <h1 id="startTitle">たっちげーむ</h1>
+                <fieldset id="field">
+                    <legend>れべる</legend>
+                    <div>
+                      <input type="radio" id="easy" name="level" value="2000" checked>
+                      <label for="easy"> かんたん </label>
+                    </div>
+                
+                    <div>
+                      <input type="radio" id="normal" name="level" value="1000">
+                      <label for="normal">  ふつう  </label>
+                    </div>
+                
+                    <div>
+                      <input type="radio" id="hard" name="level" value="500">
+                      <label for="hard">むずかしい</label>
+                    </div>
+                </fieldset>
+                <button onclick="gameStart()">すたーと</button>
+            </div>
+            <img id="target" onclick="isHit(this)" src="ship.png" style="top: 250px; left: 325px" />
+        </div>
+    </body>
+</html>
