@@ -43,16 +43,17 @@
 		function Block(x,y,i) {
 			this.x = x;
 			this.y = y;
-			this.w = 50;
+			this.w = 25;
 			this.h = 20;
-			this.color = colors[i];
-			this.point = (6-i) * 10;
+			this.color = colors[i%6];
+			this.point = (6-(i%6)) * 10;
 		}
 		
 		function Paddle() {
-			this.w = 110;
+			// this.w = 110;
+			this.w = 600;
 			this.h = 20;
-			this.x = (WIDTH - this.w) /2;
+			this.x = 0
 			this.y = HEIGHT - 20;
 			this.color = 'yellow';
 			this.keyL = false;
@@ -77,7 +78,7 @@
 			start();
 			
 			if (isNaN(timer)) {
-				timer = setInterval(mainLoop, 15);
+				timer = setInterval(mainLoop, 5);
 			}
 		}
 		
@@ -96,13 +97,14 @@
 		}
 		
 		function start() {
-			paddle.w = Math.max(20, paddle.w - 10);
+			paddle.w = Math.max(20, paddle.w);
+			// ball.speed =Math.min(20, ball.speed +1);
 			ball.speed =Math.min(20, ball.speed +1);
 			
 			// layout blocks
-			for (var i=0;i<6;i++) {
-				for (var j=0;j<9;j++) {
-					blocks.push(new Block(j*60+35,i*30+50,i));
+			for (var i=0;i<12;i++) {
+				for (var j=0;j<18;j++) {
+					blocks.push(new Block(j*30+35,i*30+50,i));
 				}
 			}
 		}
