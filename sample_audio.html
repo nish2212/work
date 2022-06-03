@@ -1,0 +1,22 @@
+<html>
+<head>
+	<title>Sample Audio</title>
+	<meta charset="utf-8" />
+	<script type="text/javascript">
+		"use strict"
+		function ring() {
+			var obj = document.getElementById("Sound");
+			// obj.value = "Hello!"
+			obj.volume = 0.0;
+			obj.play();
+		}
+	</script>
+</head>
+<body>
+	<audio id="Sound" preload="auto" controls>
+		<source src="./sample_sound_dog.mp3" type="audio/mp3" />
+	</audio>
+	
+	<p><input type="button" value="click me!" id="btn" onclick="ring()" /></p>
+</body>
+</html>
