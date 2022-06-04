@@ -1,0 +1,105 @@
+<html>
+<head>
+	<title>dog walk</title>
+	<meta charset="text/javascript">
+	<style>
+		div {
+			position: absolute;
+			top: 20px;
+			left: 20px;
+			width: 600px;
+			height: 600px;
+			background-color: rgb(124,252,0);
+		}
+		
+		img {
+			position: absolute;
+		}
+		
+	</style>
+	<script>
+		var x,y,field,timer,sound,dog,dogs=[];
+		
+		dogX = 100;
+		dogY = 0;
+		dogW = 100;
+		dogY = 100;
+		fieldX = 20;
+		fieldY = 20;
+		fieldW = 600;
+		fieldH = 600;
+		doghouseX = 500;
+		doghouseY = 0;
+		doghouseW = 100;
+		doghouseH = 100;
+		
+		function init() {
+			// get animals
+			field = document.getElementById("field");
+			dog = document.getElementById('dog');
+			dog.style.left = dogX + "px";
+			// start mainLoop
+			timer = setInterval(mainLoop,1000);
+		}
+		
+		function mainLoop() {
+			dogX += 10;
+			// y += 10;
+			
+			// dog in house?
+			if (dogX + dogW > doghouseX) {
+				dog.remove();
+				clearInterval(timer);
+			}
+			
+			dog.style.left = dogX + "px";
+			// dog.style.top = dogY + "px";
+			
+		}
+		
+		function ring() {
+			sound = document.getElementById("dogSound");
+			sound.play();
+		}
+		
+		// function dog_house() {
+		// 	this.x = 20;
+		// 	this.y = 20;
+		// 	this.w = 100;
+		// 	this.h = 100;
+			
+		// 	this.dogout = function () {
+		// 		dogs.push(new dog());
+		// 	}
+		// }
+		
+		// function dog(){
+		// 	this.x = 20;
+		// 	this.y = 20;
+		// 	this.w = 100;
+		// 	this.h = 100;
+			
+		// 	this.run = function () {
+		// 		nx = this.x + 10;
+		// 		if (nx < 0 || 600 < nx){
+		// 			changeDir();
+		// 		}
+		// 	}
+		// }
+		
+		// function changeDir() {
+		// 	return aaa
+		// }
+	</script>
+</head>
+<body onload="init()">
+	<div id="field">
+		<img src="sample_dog.png" id="dog" onclick="ring()" style="width:100px;height:100px" />
+		<img src="sample_doghouse.png" id="doghouse_in" style="width:100px;height:100px" />
+		<img src="sample_doghouse.png" id="doghouse_out" style="left:500px;width:100px;height:100px" />
+		<audio id="dogSound" preload="auto">
+			<source src="./sample_sound_dog.mp3" type="audio/mp3" />
+		</audio>
+	</div>
+	</body>
+</html>
