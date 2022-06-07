@@ -1,0 +1,172 @@
+<html>
+<head>
+	<title>どうぶつのおさんぽ</title>
+	<meta charset="utf-8">
+	<style>
+		div {
+			position: absolute;
+			top: 20;
+			left: 20;
+			width: 600;
+			height: 600;
+			background-color: rgb(124,252,0);
+		}
+		
+		img {
+			position: absolute;
+		}
+		
+	</style>
+	<script type="text/javascript">
+		var field,timer,sound,num,animals=[],houseOut,houseIn,houseSet=[],houses=[];
+		num = 0;
+		
+		function init() {
+			// display settings
+			// 拡大縮小の禁止
+			no_scaling();
+			
+			// スクロール禁止
+			document.addEventListener('touchmove', disableScroll, { passive: false });
+			document.addEventListener('mousewheel', disableScroll, { passive: false });
+			
+			// set field
+			field = document.getElementById("field");
+			field.style.left = 20;
+			field.style.top = 20;
+			field.style.width = 600;
+			field.style.heigh = 600;
+			
+			createHouse("houseDog.png",0,0,100,100,"dog");
+			createHouse("houseDog.png",0,100,100,100,"dog");
+			createHouse("houseDog.png",0,200,100,100,"dog");
+			createHouse("houseDog.png",0,300,100,100,"dog");
+			createHouse("houseDog.png",0,400,100,100,"dog");
+			createHouse("houseDog.png",0,500,100,100,"dog");
+			// start mainLoop
+			timer = setInterval(mainLoop,1000);
+		}
+		
+		function createHouse (src,left,top,width,height,id) {
+			// create start house 
+			houseOut = document.createElement("img");
+			houseOut.src          = src;
+			houseOut.style.left   = left;
+			houseOut.style.top    = top;
+			houseOut.style.width  = width;
+			houseOut.style.height = height;
+			houseOut.id           = id + "HouseOut";
+			houseOut.addEventListener("click", function(e) { animalOut(left,top,width,height,id) });
+			
+			field.appendChild(houseOut);
+			
+			// create end house
+			houseIn = document.createElement("img");
+			houseIn.src          = src;
+			houseIn.style.left   = parseInt(field.style.width) - width;
+			houseIn.style.top    = top;
+			houseIn.style.width  = width;
+			houseIn.style.height = height;
+			houseIn.id           = id + "HouseIn";
+			
+			
+			field.appendChild(houseIn);
+			
+			// set house in array
+			houseSet = [houseOut.id,houseIn.id];
+			houses.push(houseSet);
+		}
+		
+		function animalOut(left,top,width,height,id) {
+			// create animal
+			imgName = "animal_" + id + ".png";
+			animal = document.createElement("img");
+			animal.src          = imgName;
+			animal.style.left   = left + width;
+			animal.style.top    = top;
+			animal.style.width  = width;
+			animal.style.height = height;
+			animal.id           = id + num;
+			animal.speed        = 5 + (Math.random() * 15);
+			animal.zIndex       = top;
+			animal.addEventListener("click", function(e) { roar(id) });
+			
+			// set animal in array
+			animals.push(animal.id);
+			
+			// Out animal
+			field.appendChild(animal);
+			
+			num += 1;
+		}
+		
+		function roar(animal) {
+			switch (animal) {
+				case "dog":
+					sound = document.getElementById("soundDog");
+					sound.play();
+					break;
+				default:
+					console.log(animal);
+			}
+		}		
+		
+		function mainLoop() {
+			// check each animal
+			animals.forEach(
+				function(animal) {
+					animal = document.getElementById(animal);
+					nextX = parseInt(animal.style.left) + animal.speed;
+				
+					// animal in house?
+					if (nextX + parseInt(animal.style.width) > parseInt(houseIn.style.left)) {
+						animals = animals.filter(function(n) {
+							return animal.id != n;
+						})
+						animal.remove();
+					}
+				
+					// animal run
+					animal.style.left = nextX;
+					
+					// console.log
+					// console.log(houses);
+					// console.log(animals);
+				}
+			);
+		}
+		
+		// タッチ操作での拡大縮小禁止
+		function no_scaling() {
+			document.addEventListener("touchmove",mobile_no_scroll, { passive: false });
+		}
+		
+		// タッチ操作での拡大縮小禁止解除
+		function return_scaling() {
+			document.removeEventListener("touchmove", mobile_no_scroll, { passive: false });
+		}
+		
+		// 拡大縮小禁止
+		function mobile_no_scroll(event) {
+			// 2本指での操作の場合
+			if (event.touches.length >=2) {
+			// デフォルトの動作をさせない
+			event.preventDefault();
+			}
+		}
+		
+		// スクロールを禁止にする関数
+		function disableScroll(event) {
+			event.preventDefault();
+		}
+
+	</script>
+</head>
+<body onload="init()">
+	<div id="field">
+		<audio id="soundDog" preload="auto">
+			<source src="./sound_dog.mp3" type="audio/mp3" />
+		</audio>
+	</div>
+	</body>
+</html>
