@@ -3,11 +3,20 @@
 <head>
 	<title>Blocks</title>
 	<meta charset="utf-8">
+	<style>
+		body {
+			user-select: none;
+			touch-action: none;
+			-webkit-touch-callout:none; /* リンク長押しのポップアップを無効化 */
+			-webkit-user-select:none; /* テキスト長押しの選択ボックスを無効化 */
+		}
+	</style>
 	<script type="text/javascript">
 		"use strict";
 		var ctx, paddle, ball, timer, blocks = [];
-		var balls = 999,score = 0,WIDTH = 600, HEIGHT = 600;
+		var balls,score = 0,WIDTH = 600, HEIGHT = 600;
 		var colors = ['red','orange','yellow','green','purple','blue'];
+		var tx,mx,timer2,mv,gameOver=false;
 		
 		function Ball() {
 			this.x = 0;
@@ -43,17 +52,17 @@
 		function Block(x,y,i) {
 			this.x = x;
 			this.y = y;
-			this.w = 50;
+			this.w = 25;
 			this.h = 20;
-			this.color = colors[i];
-			this.point = (6-i) * 10;
+			this.color = colors[i%6];
+			this.point = (6-(i%6)) * 10;
 		}
 		
 		function Paddle() {
 			// this.w = 110;
-			this.w = 260;
+			this.w = 600;
 			this.h = 20;
-			this.x = (WIDTH - this.w) /2;
+			this.x = 0;
 			this.y = HEIGHT - 20;
 			this.color = 'yellow';
 			this.keyL = false;
@@ -61,6 +70,21 @@
 		}
 		
 		function init() {
+			// display settings
+			// 拡大縮小の禁止
+			no_scaling();
+			
+			// スクロール禁止
+			document.addEventListener('touchmove', disableScroll, { passive: false });
+			document.addEventListener('mousewheel', disableScroll, { passive: false });
+			
+			// 長押し禁止(Android)
+			window.oncontextmenu = function(event) {
+				event.preventDefault();
+				event.stopPropagation();
+				return false;
+			};
+			
 			ctx = document.getElementById('canvas').getContext('2d');
 			ctx.font = "20pt Arial";
 			
@@ -72,21 +96,66 @@
 				toggleKey(e.keyCode, false);
 			}, true);
 			
+			// paddle move by touch evnet
+			window.addEventListener('touchstart',function(e) {
+				e.preventDefault();
+				tx = e.touches[0].pageX
+				if (!isPlaying()) {
+					ball.x = paddle.x + paddle.w /2;
+					ball.y = paddle.y - ball.r;
+					ball.changeDir(Math.random() * Math.PI / 2 + Math.PI / 4); // 45-135
+				} else if (gameOver) {
+					gameOver = false;
+					score = 0;
+					initialize();
+				}
+			});
+			
+			window.addEventListener('touchmove',function(e) {
+				mx = e.touches[0].pageX;
+				if(tx - mx > 5) {
+					paddle.keyR = false;
+					paddle.keyL = true;
+					mv = Math.abs(tx - mx);
+				} else if (tx - mx < -5) {
+					paddle.keyL = false;
+					paddle.keyR = true;
+					mv = Math.abs(tx - mx);
+				} else {
+					paddle.keyL = false;
+					paddle.keyR = false;
+				}
+				tx = e.touches[0].pageX
+			});
+			
+			window.addEventListener('touchend', function(e) {
+				paddle.keyL = false;
+				paddle.keyR = false;
+			});
+			
+			initialize();
+		}
+		
+		function initialize() {
+			ctx = document.getElementById('canvas').getContext('2d');
+			ctx.font = "20pt Arial";
+			
 			// initialize players
+			balls = 5;
 			paddle = new Paddle();
 			ball = new Ball();
 			start();
 			
 			if (isNaN(timer)) {
-				timer = setInterval(mainLoop, 30);
+				timer = setInterval(mainLoop, 5);
 			}
 		}
 		
 		function toggleKey(code,flag) {
 			switch(code) {
-				case 17: paddle.keyL = flag; break;
-				case 37: paddle.keyL = flag; break;
-				case 39: paddle.keyR = flag; break;
+				case 17: paddle.keyL = flag; mv = 10; break;
+				case 37: paddle.keyL = flag; mv = 10; break;
+				case 39: paddle.keyR = flag; mv = 10; break;
 				case 32:
 				  if (!isPlaying()) {
 					  ball.x = paddle.x + paddle.w /2;
@@ -98,14 +167,14 @@
 		}
 		
 		function start() {
-			paddle.w = Math.max(20, paddle.w - 10);
+			paddle.w = Math.max(20, paddle.w);
 			// ball.speed =Math.min(20, ball.speed +1);
 			ball.speed =Math.min(20, ball.speed +1);
 			
 			// layout blocks
-			for (var i=0;i<6;i++) {
-				for (var j=0;j<9;j++) {
-					blocks.push(new Block(j*60+35,i*30+50,i));
+			for (var i=0;i<12;i++) {
+				for (var j=0;j<18;j++) {
+					blocks.push(new Block(j*30+35,i*30+50,i));
 				}
 			}
 		}
@@ -113,10 +182,10 @@
 		function mainLoop() {
 			// move the paddle
 			if(paddle.keyL) {
-				paddle.x = Math.max(0,paddle.x -10);
+				paddle.x = Math.max(0,paddle.x - mv);
 			}
 			if(paddle.keyR) {
-				paddle.x = Math.min(WIDTH - paddle.w, paddle.x +10);
+				paddle.x = Math.min(WIDTH - paddle.w, paddle.x + mv);
 			}
 			
 			draw();
@@ -135,6 +204,7 @@
 						clearInterval(timer);
 						timer = NaN;
 						draw();
+						gameOver=true;
 						return;
 					}
 					ball.y = HEIGHT + ball.r;
@@ -202,8 +272,11 @@
 			
 			// draw balls
 			ball.draw(ctx);
-			if(balls > 2) { drawBall(80,15,10);}
 			if(balls > 1) { drawBall(50,15,10);}
+			if(balls > 2) { drawBall(80,15,10);}
+			if(balls > 3) { drawBall(110,15,10);}
+			if(balls > 4) { drawBall(140,15,10);}
+			if(balls > 5) { drawBall(170,15,10);}
 			
 			// draw score & information
 			ctx.fillStyle = 'rgb(0,255,0)';
@@ -211,6 +284,30 @@
 			if(isNaN(timer)) {
 				ctx.fillText('GAME OVER',220,250);
 			}
+		}
+		
+		// タッチ操作での拡大縮小禁止
+		function no_scaling() {
+			document.addEventListener("touchmove",mobile_no_scroll, { passive: false });
+		}
+		
+		// タッチ操作での拡大縮小禁止解除
+		function return_scaling() {
+			document.removeEventListener("touchmove", mobile_no_scroll, { passive: false });
+		}
+		
+		// 拡大縮小禁止
+		function mobile_no_scroll(event) {
+			// 2本指での操作の場合
+			if (event.touches.length >=2) {
+			// デフォルトの動作をさせない
+			event.preventDefault();
+			}
+		}
+		
+		// スクロールを禁止にする関数
+		function disableScroll(event) {
+			event.preventDefault();
 		}
 	</script>
 </head>
