@@ -3,12 +3,19 @@
 	<title>どうぶつのおさんぽ</title>
 	<meta charset="utf-8">
 	<style>
+		body {
+			user-select: none;
+			touch-action: none;
+			-webkit-touch-callout:none; /* リンク長押しのポップアップを無効化 */
+			-webkit-user-select:none; /* テキスト長押しの選択ボックスを無効化 */
+		}
+		
 		#field {
 			position: absolute;
 			left: 20;
 			top: 100;
-			width: 600;
-			height: 600;
+			width: 1000;
+			height: 500;
 			background-color: rgb(124,252,0);
 		}
 		
@@ -19,7 +26,7 @@
 	</style>
 	<script type="text/javascript">
 		var field,timer,sound,num,animals=[],houseOut,houseIn,houseSet=[],houses=[],ratio;
-		var animalW,animalH,animalScale,soundName;
+		var animalW,animalH,animalScale,soundName,houseImage;
 		num = 0;
 		
 		function init() {
@@ -31,6 +38,13 @@
 			document.addEventListener('touchmove', disableScroll, { passive: false });
 			document.addEventListener('mousewheel', disableScroll, { passive: false });
 			
+			// 長押し禁止(Android)
+			window.oncontextmenu = function(event) {
+				event.preventDefault();
+				event.stopPropagation();
+				return false;
+			};
+			
 			// set back
 			back = document.getElementById("back");
 			
@@ -38,12 +52,12 @@
 			field = document.getElementById("field");
 			field.style.left   = 20;
 			field.style.top    = 100;
-			field.style.width  = 600;
-			field.style.heigh  = 600;
+			field.style.width  = 1000;
+			field.style.heigh  = 500;
 			
 			// create saku
 			saku = document.createElement("img");
-			saku.src           = "line_saku.png";
+			saku.src           = "./image/line_saku.png";
 			saku.style.left    = parseInt(field.style.left);
 			saku.style.width   = parseInt(field.style.width);
 			saku.style.height  = 100;
@@ -52,12 +66,14 @@
 			back.appendChild(saku);
 			
 			// create animal house
-			createHouse("house.png",0,0,100,100);
-			createHouse("house.png",0,100,100,100);
-			createHouse("house.png",0,200,100,100);
-			createHouse("house.png",0,300,100,100);
-			createHouse("house.png",0,400,100,100);
-			createHouse("house.png",0,500,100,100);
+			houseImage = "./image/house.png";
+			createHouse(houseImage,0,0,100,100);
+			createHouse(houseImage,0,100,100,100);
+			createHouse(houseImage,0,200,100,100);
+			createHouse(houseImage,0,300,100,100);
+			createHouse(houseImage,0,400,100,100);
+			// createHouse(houseImage,0,500,100,100);
+			
 			// start mainLoop
 			timer = setInterval(mainLoop,1000);
 		}
@@ -125,20 +141,20 @@
 			}
 			
 			// create animal
-			imgName = "animal_" + id + ".png";
+			imgName = "./image/animal_" + id + ".png";
 			animal = document.createElement("img");
 			if (animalScale == 1) {
 				animal.style.transform = "scale(-1,1)";
 			}
-			animal.src          = imgName;
-			animal.style.left   = left + animalW;
-			animal.style.top    = top - animalH + 100;
-			animal.style.width  = animalW;
-			animal.style.height = animalH;
-			animal.kind         = id;
-			animal.id           = id + num;
-			animal.speed        = 5 + (Math.random() * 15);
-			animal.style.zIndex       = 100 + top;
+			animal.src            = imgName;
+			animal.style.left     = left + animalW;
+			animal.style.top      = top - animalH + 100;
+			animal.style.width    = animalW;
+			animal.style.height   = animalH;
+			animal.kind           = id;
+			animal.id             = id + num;
+			animal.speed          = 10 + (Math.random() * 30);
+			animal.style.zIndex   = 100 + top;
 			animal.addEventListener("click", function(e) { roar(this) });
 
 			// set animal in array
@@ -154,7 +170,6 @@
 			soundName = animal.kind + "Sound";
 			sound = document.getElementById(soundName);
 			sound.play();
-			console.log(soundName);
 		}		
 		
 		function mainLoop() {
@@ -172,7 +187,7 @@
 						animal.remove();
 					}
 				
-					// animal run
+					// animal walk
 					animal.style.left = nextX;
 				}
 			);
@@ -208,16 +223,16 @@
 	<div id="back">
 		<div id="field">
 			<audio id="dogSound" preload="auto">
-				<source src="./sound_dog.mp3" type="audio/mp3" />
+				<source src="./sound/sound_dog.mp3" type="audio/mp3" />
 			</audio>
 			<audio id="lionSound" preload="auto">
-				<source src="./sound_lion.mp3" type="audio/mp3" />
+				<source src="./sound/sound_lion.mp3" type="audio/mp3" />
 			</audio>
 			<audio id="elephantSound" preload="auto">
-				<source src="./sound_elephant.mp3" type="audio/mp3" />
+				<source src="./sound/sound_elephant.mp3" type="audio/mp3" />
 			</audio>
 			<audio id="giraffeSound" preload="auto">
-				<source src="./sound_giraffe.aiff" type="audio/aiff" />
+				<source src="./sound/sound_giraffe.aiff" type="audio/aiff" />
 			</audio>
 		</div>
 	</div>
