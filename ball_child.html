@@ -113,11 +113,11 @@
 			
 			window.addEventListener('touchmove',function(e) {
 				mx = e.touches[0].pageX;
-				if(tx - mx > 5) {
+				if(tx - mx > 2) {
 					paddle.keyR = false;
 					paddle.keyL = true;
 					mv = Math.abs(tx - mx);
-				} else if (tx - mx < -5) {
+				} else if (tx - mx < -2) {
 					paddle.keyL = false;
 					paddle.keyR = true;
 					mv = Math.abs(tx - mx);
