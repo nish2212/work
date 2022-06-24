@@ -11,3 +11,4 @@
 + slide show app
 + clear task at morning app
 + osanpo app) add new character(dinosor)
++ siwake animal app
