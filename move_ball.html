@@ -1,0 +1,171 @@
+<html>
+<head>
+	<title>move ball</title>
+	<meta charset="utf-8">
+	<style>
+        canvas {
+            border: 1px solid #000;
+        }
+    </style>
+    <script>
+        // <Todo>
+        // ■PlayerAreaの作成
+        // □PlayerBallの動作ロジック作成
+        // □Goal判定の追加
+        // □EnemyAreaの作成
+        // □EnemyBallの動作ロジック作成
+        // □Ballの衝突判定/GameOver判定の追加
+        // □Start画面作成
+        // □色/アイコン調整
+        // □各種変数化
+
+
+        var canvas , context, x, timer, blocks=[], blockMap =[];
+
+        function init() {
+            // Canvas要素の取得
+            canvas = document.getElementById("myCanvas");
+            context = canvas.getContext("2d");
+            
+            // ブロックパターン(name,left,up,right,down,center,type)
+            blocks=[
+                ["none"      , false, false, false, false, false, "none" ], // 0
+                ["startLeft" , true , false, false, false, true , "start"], // 1
+                ["startUp"   , false, true , false, false, true , "start"], // 2
+                ["startRight", false, false, true , false, true , "start"], // 3
+                ["startDown ", false, false, false, true , true , "start"], // 4
+                ["goalLeft"  , true , false, false, false, true , "goal" ], // 5
+                ["goalUp"    , false, true , false, false, true , "goal" ], // 6
+                ["goalRight" , false, false, true , false, true , "goal" ], // 7
+                ["goalDown " , false, false, false, true , true , "goal" ], // 8
+                ["leftRight" , true , false, true , false, false, "none" ], // 9
+                ["upDown"    , false, true , false, true , false, "none" ], // 10
+                ["leftUp"    , true , true , false, false, false, "none" ], // 11
+                ["upRight"   , false, true , true , false, false, "none" ], // 12
+                ["rightDown" , false, false, true , true , false, "none" ], // 13
+                ["downLeft"  , true , false, false, true , false, "none" ]  // 14
+            ]
+
+            blockMap=[
+                [3,9,9,14],
+                [13,9,9,11],
+                [12,9,9,5]
+            ]
+            
+            drawBlocks();
+
+            movable = 0;
+            x = 150;
+
+            window.addEventListener("keydown", function(e) {
+                chgMovable();
+            }, true);
+
+            window.addEventListener("touchstart", function(e) {
+                chgMovable();
+            }, true);
+
+            drawBall();
+
+            if (isNaN(timer)) {
+				timer = setInterval(mainLoop, 15);
+			}
+        }
+
+        function chgMovable() {
+            if (movable == 0) {
+                movable = 1;
+            } else if (movable == 1) {
+                movable = 0;
+            }
+        }
+
+        function mainLoop() {
+            if ((movable == 1) && (x < 450)) {
+                x += 3;
+            } else {
+                movable = 0;
+            }
+
+            moveAll();
+        }
+
+        function moveAll() {
+            // Ball位置判定
+            // moveBall();
+            // 全消し（ここはBallだけ消したいので後で変更すること）
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            // ブロック再描画
+            drawBlocks();
+            //  Ball再描画
+            drawBall();
+        }
+
+        function drawBall() {
+            // 黄色い円を描画
+            context.beginPath();
+            context.arc(x, 150, 10, 0, 2 * Math.PI); // (x, y, radius, startAngle, endAngle)
+            context.fillStyle = "yellow";
+            context.fill();
+            context.closePath();
+        }
+
+        function drawBlocks() {
+            for (var n=0; n<blockMap.length; n++) {
+                for (var m=0; m<blockMap[n].length; m++) {
+                    drawBlock(100+100*m, 100+100*n , blockMap[n][m]);
+                }
+            }
+        }
+
+        function drawBlock(left, top, blockNumber) {
+
+            center_x = left + 50;
+            center_y = top + 50;
+
+            // 四角形の描画
+            context.beginPath();
+            context.rect(left, top, 100, 100); // (x, y, width, height)
+            context.fillStyle = "blue";
+            context.fill();
+            context.closePath();
+
+            // 黒い点の描画
+            if (blocks[blockNumber][5]) { // center
+                context.beginPath();
+                context.arc(center_x, center_y, 5, 0, 2 * Math.PI);
+                context.fillStyle = "black";
+                context.fill();
+                context.closePath();
+            }
+
+            // 黒い線の描画
+            context.beginPath();
+            if (blocks[blockNumber][1]) { // left
+                context.moveTo(center_x, center_y);
+                context.lineTo(center_x-50, center_y);
+            }
+            if (blocks[blockNumber][2]) { // up
+                context.moveTo(center_x, center_y);
+                context.lineTo(center_x, center_y-50);
+            }
+            if (blocks[blockNumber][3]) { // right
+                context.moveTo(center_x, center_y);
+                context.lineTo(center_x+50, center_y);
+            }
+            if (blocks[blockNumber][4]) { // down
+                context.moveTo(center_x, center_y);
+                context.lineTo(center_x, center_y+50);
+            }
+            context.strokeStyle = "black";
+            context.stroke();
+            context.closePath();
+        }
+    </script>
+</head>
+<body onload="init()">
+    <canvas id="myCanvas" width="1200" height="400"></canvas>
+
+
+</body>
+</html>
