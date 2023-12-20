@@ -10,7 +10,7 @@
     <script>
         // <Todo>
         // ■PlayerAreaの作成
-        // □PlayerBallの動作ロジック作成
+        // ■PlayerBallの動作ロジック作成
         // □Goal判定の追加
         // □EnemyAreaの作成
         // □EnemyBallの動作ロジック作成
@@ -20,13 +20,32 @@
         // □各種変数化
 
 
-        var canvas , context, x, timer, blocks=[], blockMap =[];
+        var canvas , context, x, timer, blocks=[], blockMap =[], blockWidth, blockHeight, startBlock = [];
+        var player_x, player_y, player_direction, player;
 
         function init() {
+            blockWidth = 100;
+            blockHeight = 100;
+            movable = 0;
+
+            window.addEventListener("keydown", function(e) {
+                chgMovable();
+            }, true);
+
+            window.addEventListener("touchstart", function(e) {
+                chgMovable();
+            }, true);
+
+            window.addEventListener("keydown", function(e) {
+                if (event.shiftKey) {
+                    location.reload();
+                }
+            }, true);
+
             // Canvas要素の取得
             canvas = document.getElementById("myCanvas");
             context = canvas.getContext("2d");
-            
+           
             // ブロックパターン(name,left,up,right,down,center,type)
             blocks=[
                 ["none"      , false, false, false, false, false, "none" ], // 0
@@ -51,21 +70,22 @@
                 [13,9,9,11],
                 [12,9,9,5]
             ]
+
+            startBlock = getStartBlock();
+            player_x = startBlock[1]*blockWidth + (blockWidth/2);
+            player_y = startBlock[0]*blockHeight + (blockHeight/2);
             
+            for (var i=1; i<5; i++) {
+                if (blocks[blockMap[startBlock[0]][startBlock[1]]][i]) {
+                        player_direction = i;
+                        break;
+                }
+            }
+
+            player = new Ball(player_x, player_y, player_direction);
+
             drawBlocks();
-
-            movable = 0;
-            x = 150;
-
-            window.addEventListener("keydown", function(e) {
-                chgMovable();
-            }, true);
-
-            window.addEventListener("touchstart", function(e) {
-                chgMovable();
-            }, true);
-
-            drawBall();
+            player.draw();
 
             if (isNaN(timer)) {
 				timer = setInterval(mainLoop, 15);
@@ -81,11 +101,7 @@
         }
 
         function mainLoop() {
-            if ((movable == 1) && (x < 450)) {
-                x += 3;
-            } else {
-                movable = 0;
-            }
+
 
             moveAll();
         }
@@ -93,39 +109,40 @@
         function moveAll() {
             // Ball位置判定
             // moveBall();
-            // 全消し（ここはBallだけ消したいので後で変更すること）
             context.clearRect(0, 0, canvas.width, canvas.height);
             // ブロック再描画
             drawBlocks();
             //  Ball再描画
-            drawBall();
+            player.move();
         }
 
-        function drawBall() {
-            // 黄色い円を描画
-            context.beginPath();
-            context.arc(x, 150, 10, 0, 2 * Math.PI); // (x, y, radius, startAngle, endAngle)
-            context.fillStyle = "yellow";
-            context.fill();
-            context.closePath();
+        function getStartBlock() {
+            for (var n=0; n<blockMap.length; n++) {
+                for (var m=0; m<blockMap[n].length; m++) {
+                    if (blocks[blockMap[n][m]][6] == "start") {
+                        startBlock = [n,m];
+                        return startBlock;
+                    }
+                }
+            }
         }
 
         function drawBlocks() {
             for (var n=0; n<blockMap.length; n++) {
                 for (var m=0; m<blockMap[n].length; m++) {
-                    drawBlock(100+100*m, 100+100*n , blockMap[n][m]);
+                    drawBlock(blockWidth*m, blockHeight*n , blockMap[n][m]);
                 }
             }
         }
 
         function drawBlock(left, top, blockNumber) {
 
-            center_x = left + 50;
-            center_y = top + 50;
+            center_x = left + (blockWidth  / 2);
+            center_y = top  + (blockHeight / 2);
 
             // 四角形の描画
             context.beginPath();
-            context.rect(left, top, 100, 100); // (x, y, width, height)
+            context.rect(left, top, blockWidth, blockHeight); // (x, y, width, height)
             context.fillStyle = "blue";
             context.fill();
             context.closePath();
@@ -143,28 +160,142 @@
             context.beginPath();
             if (blocks[blockNumber][1]) { // left
                 context.moveTo(center_x, center_y);
-                context.lineTo(center_x-50, center_y);
+                context.lineTo(center_x-(blockWidth/2), center_y);
             }
             if (blocks[blockNumber][2]) { // up
                 context.moveTo(center_x, center_y);
-                context.lineTo(center_x, center_y-50);
+                context.lineTo(center_x, center_y-(blockHeight/2));
             }
             if (blocks[blockNumber][3]) { // right
                 context.moveTo(center_x, center_y);
-                context.lineTo(center_x+50, center_y);
+                context.lineTo(center_x+(blockWidth/2), center_y);
             }
             if (blocks[blockNumber][4]) { // down
                 context.moveTo(center_x, center_y);
-                context.lineTo(center_x, center_y+50);
+                context.lineTo(center_x, center_y+(blockHeight/2));
             }
             context.strokeStyle = "black";
             context.stroke();
             context.closePath();
         }
+
+        function Ball(x, y, direction, speed=2) {
+            this.x = x;
+            this.y = y;
+            this.speed = speed;
+            this.direction = direction;
+
+            this.move = function() {
+                var loop_flg = false;
+                var inBlock;
+                var isCenter = false;
+
+                // 自分がどのブロックにいるかチェック
+                for (var n=0; n<blockMap.length; n++) {
+                   for (var m=0; m<blockMap[n].length; m++) {
+                       if ((blockWidth*m <= this.x) && (blockWidth*(m+1) > this.x) && (blockHeight*n <= this.y) && (blockHeight*(n+1) > this.y)) {
+                           inBlock = blockMap[n][m];
+                           loop_flg = true;
+                           break;
+                       }
+                    }
+                    if (loop_flg) {
+                        break;
+                    }
+                }
+                // 自分がブロックの中心にいるかチェック
+                // 中心にいた場合は進行方向判定を行う
+                if ((this.x == ((blockWidth*m) + (blockWidth/2))) && (this.y == ((blockHeight*n) + (blockHeight/2)))) {
+                    isCenter = true;
+                    this.changeDirection(inBlock);
+                }
+
+                // 自分がいるセクションのtrueチェック。いる？
+                
+                // speed分進む
+                if (movable == 1) {
+                    if (this.direction == 1) {
+                        this.x -= this.speed;
+                    } else if (this.direction == 2) {
+                        this.y -= this.speed;
+                    } else if (this.direction == 3) {
+                        this.x += this.speed;
+                    } else if (this.direction == 4) {
+                        this.y += this.speed;
+                    }
+                }
+
+                // 再描画する
+                this.draw();
+            }
+
+            this.changeDirection = function(inBlock) {
+                    // leftから来た場合
+                    if (this.direction == 3) {
+                        if (blocks[inBlock][3]) {
+                            this.direction = 3;
+                        } else if (blocks[inBlock][2]) {
+                            this.direction = 2;
+                        } else if (blocks[inBlock][4]) {
+                            this.direction = 4;
+                        } else {
+                            this.direction = 0;
+                        }
+                    }
+
+                    // upから来た場合
+                    if (this.direction == 4) {
+                        if (blocks[inBlock][4]) {
+                            this.direction = 4;
+                        } else if (blocks[inBlock][1]) {
+                            this.direction = 1;
+                        } else if (blocks[inBlock][3]) {
+                            this.direction = 3;
+                        } else {
+                            this.direction = 0;
+                        }
+                    }
+                    
+                    // rightから来た場合
+                    if (this.direction == 1) {
+                        if (blocks[inBlock][1]) {
+                            this.direction = 1;
+                        } else if (blocks[inBlock][2]) {
+                            this.direction = 2;
+                        } else if (blocks[inBlock][4]) {
+                            this.direction = 4;
+                        } else {
+                            this.direction = 0;
+                        }
+                    }
+
+                    // downから来た場合
+                    if (this.direction == 2) {
+                        if (blocks[inBlock][4]) {
+                            this.direction = 4;
+                        } else if (blocks[inBlock][1]) {
+                            this.direction = 1;
+                        } else if (blocks[inBlock][3]) {
+                            this.direction = 3;
+                        } else {
+                            this.direction = 0;
+                        }
+                    }
+            }
+
+            this.draw = function() {
+                // 黄色い円を描画
+                context.beginPath();
+                context.arc(this.x, this.y, 10, 0, 2 * Math.PI); // (x, y, radius, startAngle, endAngle)
+                context.fillStyle = "yellow";
+                context.fill();
+                context.closePath();
+            }
+        }
     </script>
 </head>
 <body onload="init()">
-    <canvas id="myCanvas" width="1200" height="400"></canvas>
+    <canvas id="myCanvas" width="1200" height="800"></canvas>
 
 
 </body>
